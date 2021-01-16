@@ -14,7 +14,9 @@ Class {
 		'cachedAscent',
 		'cachedDescent',
 		'subPixelPositioned',
-		'symbolFont',
+		'symbolFont'
+	],
+	#classVars : [
 		'mutex'
 	],
 	#pools : [
