@@ -337,6 +337,7 @@ FreeTypeFont >> getLinearWidthOf: aCharacter [
 					self face setCharMap:'armn'.
 					charCode := aCharacter unicodeToMacRoman asUnicode asInteger. "check this!"]].
 	em := self pixelSize.
+	face lock wait.
 	face validate.
 	face setPixelWidth: em height: em.
 	[face loadCharacter: charCode flags: (LoadNoBitmap bitOr: (LoadIgnoreTransform bitOr: "FreeTypeSettings current hintingFlags" 2 "no hinting"))]
@@ -355,6 +356,7 @@ FreeTypeFont >> getLinearWidthOf: aCharacter [
 		face loadCharacter: charCode flags:(LoadNoBitmap bitOr: (LoadIgnoreTransform bitOr: "FreeTypeSettings current hintingFlags" 2 "no hinting")). "load glyph metrics"
 		glyph := face glyph.
 		la := glyph linearHorizontalAdvance / 2.0].
+	face lock signal.
 	^la
 
 ]
@@ -362,7 +364,7 @@ FreeTypeFont >> getLinearWidthOf: aCharacter [
 { #category : #measuring }
 FreeTypeFont >> getWidthOf: aCharacter [ 
 	"Glyphs are either 1 or 8 bit deep. For 32 bpp we use 8 bits, otherwise 1"
-	| em glyph hintingFlags flags charCode |
+	| em glyph hintingFlags flags charCode answer |
 
 	aCharacter < $  ifTrue: [^self getWidthOf: $ ].
 	charCode := aCharacter asUnicode asInteger.
@@ -378,6 +380,7 @@ FreeTypeFont >> getWidthOf: aCharacter [
 	em := self pixelSize.
 	face validate.
 	face isValid ifFalse:[^0].
+	face lock wait.
 	face setPixelWidth: em height: em.
 	hintingFlags := FreeTypeSettings current hintingFlags.
 	flags :=  LoadNoBitmap bitOr:( LoadIgnoreTransform bitOr: hintingFlags). 
@@ -387,9 +390,11 @@ FreeTypeFont >> getWidthOf: aCharacter [
 	"When not hinting FreeType sets the advance to the truncated linearAdvance.
 	The characters appear squashed together. Rounding is probably better, so we 
 	answer the rounded linear advance here"
-	^self subPixelPositioned
+	answer := self subPixelPositioned
 		ifTrue:[ glyph roundedPixelLinearAdvance x]
 		ifFalse:[ glyph advance x].
+	face lock signal.
+	^answer
 
 ]
 

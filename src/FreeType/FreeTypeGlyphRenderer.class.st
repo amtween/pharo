@@ -172,12 +172,15 @@ FreeTypeGlyphRenderer >> renderGlyph: aCharacter depth: depth subpixelPosition: 
 			offset:0@0;
 			yourself ].
 	em := aFreeTypeFont pixelSize.
-	[ | hintingFlags flags |face := aFreeTypeFont face.
+	[ | hintingFlags flags |
+	face := aFreeTypeFont face.
+	face lock wait.
 	face setPixelWidth: em height: em.
 	hintingFlags := FreeTypeSettings current hintingFlags.
 	flags :=  LoadNoBitmap bitOr:( LoadIgnoreTransform bitOr: hintingFlags). 
 	face loadCharacter:charCode flags: flags]
 	on: FT2Error, PrimitiveFailed do:[:e | 
+		face lock signal.
 		^(GlyphForm extent: 0@0 depth: depth)
 			advance: 0@0;
 			linearAdvance: 0@0;
@@ -209,6 +212,7 @@ FreeTypeGlyphRenderer >> renderGlyph: aCharacter depth: depth subpixelPosition: 
 		ifTrue:[ form advance: glyph roundedPixelLinearAdvance]
 		ifFalse:[ form advance: glyph advance].
 	form linearAdvance: glyph linearAdvance.
+	face lock signal.
 	^form
 ]
 

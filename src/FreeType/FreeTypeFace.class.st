@@ -8,7 +8,8 @@ Class {
 		'filename',
 		'index',
 		'fileContentsExternalMemory',
-		'hasKerning'
+		'hasKerning',
+		'lock'
 	],
 	#category : #'FreeType-Fonts'
 }
@@ -30,6 +31,7 @@ FreeTypeFace class >> fromBytes: aByteArray index: anInteger [
 		(inst fileContentsExternalMemoryBytes = aByteArray and: [inst index = anInteger])
 			ifTrue: [^inst "validate"]].
 	newFace := self basicNew
+		lock; "ensure newface has its lock semaphore before doing anything else"
 		fileContentsExternalMemory: (FreeTypeExternalMemory bytes: aByteArray);
 		index: anInteger;
 		autoRelease;
@@ -49,6 +51,7 @@ FreeTypeFace class >> fromFile: aFileName index: anInteger [
 			ifTrue: [^inst "validate"]].
 		
 	^ (self basicNew)
+		lock; "ensure the new instance has its lock semaphore before doing anything else with it"
 		filename: aFileName;
 		index: anInteger;
 		autoRelease;
@@ -127,6 +130,11 @@ FreeTypeFace >> index [
 { #category : #accessing }
 FreeTypeFace >> index: anInteger [
 	index := anInteger
+]
+
+{ #category : #accessing }
+FreeTypeFace >> lock [
+	^lock ifNil:[lock := Semaphore forMutualExclusion ]
 ]
 
 { #category : #copying }
