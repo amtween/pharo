@@ -87,8 +87,7 @@ FreeTypeCache >> atFont: aFreeTypeFont charCode: charCodeInteger type: typeFlag 
 { #category : #'add-remove' }
 FreeTypeCache >> atFont: aFreeTypeFont charCode: charCodeInteger type: typeFlag ifAbsentPut: aBlock [ 
 	| charCodeTable typeTable entry v vSize |
-
-	aFreeTypeFont mutex criticalReleasingOnError: [  				
+ 				
 		charCodeTable := fontTable at: aFreeTypeFont ifAbsentPut:[self dictionaryClass new: 60].
 		typeTable := charCodeTable at: charCodeInteger ifAbsentPut:[self dictionaryClass new: 10].
 		entry := typeTable at: typeFlag ifAbsent:[].
@@ -110,15 +109,14 @@ FreeTypeCache >> atFont: aFreeTypeFont charCode: charCodeInteger type: typeFlag 
 		typeTable at: typeFlag put: entry.
 		fifo addLast: entry.
 		maximumSize ifNotNil:[self shrinkTo: maximumSize].
-		^v ]
+		^v
 	
 ]
 
 { #category : #'add-remove' }
 FreeTypeCache >> atFont: aFreeTypeFont charCode: charCodeInteger type: typeFlag put: anObject [ 
 	| charCodeTable typeTable anObjectSize oldEntry oldEntrySize entry |
-
-	aFreeTypeFont mutex criticalReleasingOnError: [  					
+  					
 		anObjectSize := self sizeOf: anObject.
 		(maximumSize notNil and:[anObjectSize > maximumSize]) 
 			ifTrue:[^anObject].  
@@ -141,7 +139,7 @@ FreeTypeCache >> atFont: aFreeTypeFont charCode: charCodeInteger type: typeFlag 
 		oldEntry ifNotNil: [fifo remove: oldEntry].
 		fifo addLast: entry.
 		maximumSize ifNotNil:[self shrinkTo: maximumSize].
-		^anObject]
+		^anObject
 	
 ]
 

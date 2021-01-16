@@ -16,9 +16,6 @@ Class {
 		'subPixelPositioned',
 		'symbolFont'
 	],
-	#classVars : [
-		'mutex'
-	],
 	#pools : [
 		'FT2Constants',
 		'FreeTypeCacheConstants'
@@ -683,12 +680,6 @@ FreeTypeFont >> mode41GlyphOf: aCharacter colorValue: aColorValue mono: monoBool
 				font: self]
 
 
-]
-
-{ #category : #accessing }
-FreeTypeFont >> mutex [
-
-	^ mutex ifNil: [ mutex := Semaphore forMutualExclusion ]
 ]
 
 { #category : #measuring }
