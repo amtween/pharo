@@ -516,17 +516,16 @@ FreeTypeFontProvider >> updateFromFile: aFile [
 	
 	path := aFile fullName utf8Encoded asString.
 	[face := FreeTypeFace basicNew filename: path; index:  i.
+	face lock critical:[
 	["we use the primNewFaceFromFile:index: method because we want to do this as fast as possible and we don't need the face registered because it will be explicitly destroyed later"
-	face lock wait.
+	
 	face newFaceFromFile: path index: i.
 	face loadFields]
 		on: FT2Error, PrimitiveFailed
 		do: [:e | 
-			face lock signal.
 			^self failedToOpen: face from: path index: i ].
 	(face height notNil  and:[face hasFamilyName and:[face hasStyleName and:[face isValid]]])
 		ifFalse: [ 
-			face lock signal.
 			^self failedToOpen:face from: path index: i ]
 		ifTrue: [
 			numFaces ifNil: [numFaces := face numFaces].
@@ -549,18 +548,9 @@ FreeTypeFontProvider >> updateFromFile: aFile [
 			self addFileInfo: info index: i.
 			self cacheFileInfo: info index: i.
 			"Transcript show: 'from file : ', info asString."].
-	face lock signal.
+	].
 	i := i + 1.
 	i < numFaces "note, we use < rather than <= , because i is zero based"] whileTrue:[].
-	
-	
-		
-	
-	
-	
-			
-	
-	
 ]
 
 { #category : #'loading and updating' }

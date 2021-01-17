@@ -121,15 +121,14 @@ FreeTypeSubPixelAntiAliasedGlyphRenderer >> renderStretchedGlyph: aCharacter dep
 			yourself ].
 	scaleX := 3.
 	em := aFreeTypeFont pixelSize.
-	[ | hintingFlags flags |
 	face := aFreeTypeFont face.
-	face lock wait.
+	face lock critical:[
+	[ | hintingFlags flags |
 	face setPixelWidth: em height: em.
 	hintingFlags := FreeTypeSettings current hintingFlags.
 	flags :=  LoadNoBitmap bitOr:( LoadIgnoreTransform bitOr: hintingFlags). 
 	face loadCharacter:charCode flags: flags. 
 	] on: FT2Error, PrimitiveFailed do:[:e |
-		face lock signal. 
 		^(GlyphForm extent: 0@0 depth: depth)
 			advance: 0@0;
 			linearAdvance: 0@0;
@@ -162,7 +161,7 @@ FreeTypeSubPixelAntiAliasedGlyphRenderer >> renderStretchedGlyph: aCharacter dep
 		ifTrue:[ form advance: glyph roundedPixelLinearAdvance * (scaleX@1)]
 		ifFalse:[ form advance: glyph advance x * scaleX@glyph advance y].
 	form linearAdvance: glyph linearAdvance.
-	face lock signal.
+	].
 	^form
 ]
 

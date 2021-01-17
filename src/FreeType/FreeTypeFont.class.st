@@ -334,7 +334,7 @@ FreeTypeFont >> getLinearWidthOf: aCharacter [
 					self face setCharMap:'armn'.
 					charCode := aCharacter unicodeToMacRoman asUnicode asInteger. "check this!"]].
 	em := self pixelSize.
-	face lock wait.
+	face lock critical:[
 	face validate.
 	face setPixelWidth: em height: em.
 	[face loadCharacter: charCode flags: (LoadNoBitmap bitOr: (LoadIgnoreTransform bitOr: "FreeTypeSettings current hintingFlags" 2 "no hinting"))]
@@ -353,7 +353,7 @@ FreeTypeFont >> getLinearWidthOf: aCharacter [
 		face loadCharacter: charCode flags:(LoadNoBitmap bitOr: (LoadIgnoreTransform bitOr: "FreeTypeSettings current hintingFlags" 2 "no hinting")). "load glyph metrics"
 		glyph := face glyph.
 		la := glyph linearHorizontalAdvance / 2.0].
-	face lock signal.
+	].
 	^la
 
 ]
@@ -377,7 +377,7 @@ FreeTypeFont >> getWidthOf: aCharacter [
 	em := self pixelSize.
 	face validate.
 	face isValid ifFalse:[^0].
-	face lock wait.
+	face lock critical:[
 	face setPixelWidth: em height: em.
 	hintingFlags := FreeTypeSettings current hintingFlags.
 	flags :=  LoadNoBitmap bitOr:( LoadIgnoreTransform bitOr: hintingFlags). 
@@ -390,7 +390,7 @@ FreeTypeFont >> getWidthOf: aCharacter [
 	answer := self subPixelPositioned
 		ifTrue:[ glyph roundedPixelLinearAdvance x]
 		ifFalse:[ glyph advance x].
-	face lock signal.
+	].
 	^answer
 
 ]
